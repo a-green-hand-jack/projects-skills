@@ -60,9 +60,11 @@ Initialize a production-ready Python/ML project, or enhance an existing fork.
 
 ### `prompt-manager`
 
-Set up and manage LLM prompts using a production-grade prompt management system.
+Set up and manage prompts for **LLM agent projects** using a production-grade prompt management system.
 
-**Trigger:** When the user wants to create, organize, version, or manage prompts for LLM applications.
+If you are building an LLM agent (trading agent, research assistant, RAG pipeline, etc.), hardcoding prompts as Python strings quickly becomes unmanageable. This skill introduces a structured approach: prompts live in versioned YAML + Jinja2 files, separate from your code, with caching and parameter validation built in.
+
+**Trigger:** When working on an LLM agent project and needing to create, organize, version, or manage prompts.
 
 **What you get:**
 - YAML config + Jinja2 template separation
