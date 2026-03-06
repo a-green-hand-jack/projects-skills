@@ -1,20 +1,19 @@
 # Project Skills
 
-A collection of Claude Code skills, slash commands, and agent workflows for research and ML engineering.
+A collection of Claude Code skills and slash commands for research and ML engineering.
 
 ## Overview
 
 | Type | What it does | Installs to |
 |------|-------------|-------------|
 | **Skills** | Extend Claude Code with new capabilities | `~/.claude/skills/` |
-| **Commands** | Slash commands (`/cmd`) for common tasks | `~/.claude/commands/` |
-| **Workflows** | Multi-step agent procedures | `~/.agent/workflows/` |
+| **Commands** | Slash commands (`/cmd`) for tasks and workflows | `~/.claude/commands/` |
 
 ---
 
 ## Skills
 
-Skills are loaded on-demand by Claude Code. Install them once, use them forever.
+Skills are loaded on-demand by Claude Code. Install them once; Claude activates them automatically when relevant.
 
 ### `init-latex-project`
 
@@ -22,7 +21,7 @@ Initialize a LaTeX academic paper project with standard structure, macros, and w
 
 **Supports:** ICLR, CVPR, ICML, ACM SIGCONF, ACL/*ACL
 
-**Trigger:**
+**Usage:**
 ```
 /init-latex-project my-paper --venue iclr --git
 /init-latex-project my-cvpr-paper . --venue cvpr
@@ -40,7 +39,7 @@ Initialize a LaTeX academic paper project with standard structure, macros, and w
 
 Initialize a production-ready Python/ML project, or enhance an existing fork.
 
-**Trigger:**
+**Usage:**
 ```
 /init-python-project
 ```
@@ -51,7 +50,7 @@ Initialize a production-ready Python/ML project, or enhance an existing fork.
 - `docs/` with three layers: `outlines/` (planning), `dev/` (features), `src/` (modules)
 - Dev tooling: pytest, black, ruff, mypy
 - `.env` / `.env.example`, VSCode/Cursor/Claude settings
-- Project CLAUDE.md with development principles
+- Project `CLAUDE.md` with development principles
 
 **Supports both:**
 - **New project**: full scaffold from scratch
@@ -86,48 +85,60 @@ prompts/
 
 ## Commands
 
-Slash commands available directly in Claude Code as `/command-name`.
+All commands are available as `/command-name` in Claude Code.
 
-### `/init-python-project`
-Alias command that triggers the `init-python-project` skill interactively.
+### Project Setup
 
-### `/new-workspace`
+#### `/init-python-project`
+Alias that triggers the `init-python-project` skill interactively.
+
+#### `/new-workspace`
 Create a new Git branch or worktree for experiments or features.
 
 - Supports `feature/<name>` and `exp/<name>` branch types
-- For worktrees: auto-copies `.vscode`, `.cursor`, `.claude` configs; creates symlinks from `.worktree-links`; runs `uv sync`
+- For worktrees: auto-copies `.vscode`, `.cursor`, `.claude` configs; creates symlinks via `.worktree-links`; runs `uv sync`
 
-### `/setup-git-github`
-Configure Git global settings and set up GitHub SSH authentication on a new device.
+#### `/project-init`
+Initialize a new research project with aligned paper and code repositories under a shared parent folder.
 
-- Generates ed25519 SSH key
-- Configures `~/.ssh/config`
-- Guides through adding key to GitHub
-- Tests the connection
+**Output:**
+```
+~/Projects/<ProjectName>/
+├── paper/     ← LaTeX repo (uses init-latex-project)
+├── code/      ← Python ML repo (uses init-python-project)
+└── PROJECT.md ← Overview linking both repos
+```
 
-> **Personalization required**: edit this file to pre-fill your name and email, or leave it interactive.
-
-### `/sync-config`
-Sync your `~/.claude/` configuration to remote SSH servers via rsync.
-
-- Smart sync: compares timestamps before pushing/pulling
-- Safe excludes: skips session data, credentials, history
-
-> **Personalization required**: edit this file to configure your target server aliases.
+`PROJECT.md` documents the research overview (method, datasets, metrics) and defines the workflow between paper and code. The paper repo gets `sections/daily_experiments.tex` — a running log for experiment results.
 
 ---
 
-## Workflows
+### During Development
 
-Multi-step agent procedures for the full research lifecycle. These live in `~/.agent/workflows/` and are invoked by telling the agent which workflow to run.
+#### `/update-docs`
+Analyse code changes since the last docs update and refresh documentation files.
 
-### `add-git-tag`
+- Detects project root and docs location automatically
+- Finds baseline commit (last docs commit) and diffs code changes
+- Maps changes to affected doc files and makes surgical edits
+- Preserves existing writing style and language
+- Optionally commits the updated docs
 
+#### `/project-sync`
+Sync new experiment results from the code repo into the paper's experiment log.
+
+- Auto-detects `code/` and `paper/` sibling directories
+- Asks for experiment details, or auto-reads from `outputs/logs/`
+- Previews the LaTeX entry before inserting
+- Inserts at top of `daily_experiments.tex` (reverse chronological)
+- Optionally commits to the paper repo
+
+---
+
+### At Milestones
+
+#### `/add-git-tag`
 Mark a project milestone with an annotated Git tag.
-
-**Use when:** completing a phase and wanting to checkpoint progress.
-
-**Flow:** ask for version + achievements + next plans → preview tag message → create annotated tag → optionally push to remote.
 
 **Example tag format:**
 ```
@@ -145,119 +156,80 @@ Date: 2026-03-06
 
 ---
 
-### `update-docs`
+### Device Setup
 
-Analyse code changes since the last docs update and refresh documentation files.
+#### `/setup-git-github`
+Configure Git global settings and set up GitHub SSH authentication on a new device.
 
-**Use when:** code has changed and docs are out of date.
+- Generates ed25519 SSH key
+- Configures `~/.ssh/config`
+- Guides through adding key to GitHub and tests the connection
 
-**Flow:** detect project + docs location → find baseline commit (last docs commit) → diff code changes → map changes to affected docs → surgical edits → optionally commit.
+> Asks for your name and email interactively — no hardcoded personal info.
 
-**Key behavior:** preserves existing writing style and language; only edits sections affected by the diff.
+#### `/sync-config`
+Sync your `~/.claude/` configuration to remote SSH servers via rsync.
 
----
+- Smart sync: compares timestamps before pushing/pulling
+- Safe excludes: skips session data, credentials, history
 
-### `project-init`
-
-Initialize a new research project with aligned paper and code repositories.
-
-**Use when:** starting a new research project that needs both a LaTeX paper and Python implementation.
-
-**Output:**
-```
-~/Projects/<ProjectName>/
-├── paper/    ← LaTeX repo (uses init-latex-project)
-├── code/     ← Python ML repo (uses init-python-project)
-└── PROJECT.md
-```
-
-`PROJECT.md` links both repos, documents the research overview (method, datasets, metrics), and defines the workflow between paper and code.
-
-The paper repo gets a `sections/daily_experiments.tex` — a running log of experiment results in reverse chronological order.
-
----
-
-### `project-sync`
-
-Sync new experiment results from the code repo into the paper's experiment log.
-
-**Use when:** you have new results and want to record them in the paper.
-
-**Flow:** auto-detect `code/` and `paper/` sibling dirs → ask for experiment details (or auto-read from `outputs/logs/`) → preview LaTeX entry → insert at top of `daily_experiments.tex` → optionally commit.
+> Edit the file to pre-fill your server aliases, or leave it interactive.
 
 ---
 
 ## Installation
 
-### Skills
+```bash
+git clone git@github.com:a-green-hand-jack/projects-skills.git ~/Projects/project-skills
+```
+
+### Install skills
 
 ```bash
-# Clone this repo
-git clone <repo-url> ~/Projects/project-skills
-
-# Install a specific skill
-cp -r ~/Projects/project-skills/skills/init-latex-project ~/.claude/skills/
-
-# Install all skills
 cp -r ~/Projects/project-skills/skills/* ~/.claude/skills/
 ```
 
-### Commands
+### Install commands
 
 ```bash
-# Install a specific command
-cp ~/Projects/project-skills/commands/new-workspace.md ~/.claude/commands/
-
-# Install all commands
 cp ~/Projects/project-skills/commands/* ~/.claude/commands/
 ```
 
-### Workflows
-
-```bash
-# Create the workflows directory if it doesn't exist
-mkdir -p ~/.agent/workflows/
-
-# Install all workflows
-cp ~/Projects/project-skills/workflows/* ~/.agent/workflows/
-```
-
-### Install everything at once
+### Install everything
 
 ```bash
 cp -r ~/Projects/project-skills/skills/* ~/.claude/skills/
 cp ~/Projects/project-skills/commands/* ~/.claude/commands/
-mkdir -p ~/.agent/workflows/ && cp ~/Projects/project-skills/workflows/* ~/.agent/workflows/
 ```
 
 ---
 
-## How Skills, Commands, and Workflows Fit Together
+## How Everything Fits Together
 
 ```
-project-init  (workflow)
-  ├── init-latex-project  (skill → /init-latex-project)
-  └── init-python-project (skill → /init-python-project)
-        └── /new-workspace  (command — create experiment branches)
+/project-init
+  ├── init-latex-project  (skill)
+  └── init-python-project (skill)
+        └── /new-workspace
 
 During development:
-  ├── prompt-manager      (skill — LLM prompt management)
-  ├── update-docs         (workflow — keep docs in sync with code)
-  └── project-sync        (workflow — log experiment results to paper)
+  ├── prompt-manager   (skill)
+  ├── /update-docs
+  └── /project-sync
 
 At milestones:
-  ├── add-git-tag         (workflow — annotated version tags)
-  └── /sync-config        (command — sync config to remote servers)
+  ├── /add-git-tag
+  └── /sync-config
 ```
 
 ---
 
 ## Contributing
 
-Each skill/command/workflow is a single Markdown file (or a directory with `SKILL.md` + supporting files). To add or improve one:
+Each skill is a directory with `SKILL.md` + optional `scripts/` and `templates/`. Each command is a single `.md` file. To contribute:
 
-1. Edit the relevant file
-2. Test it by invoking it in Claude Code
-3. Submit a PR with a clear description of what changed and why
+1. Edit or add the relevant file
+2. Test by invoking it in Claude Code
+3. Submit a PR describing what changed and why
 
-For skills with scripts, keep `SKILL.md` under 500 lines — move reference material to separate files linked from `SKILL.md`.
+See `AGENTS.md` for detailed guidelines.
