@@ -20,12 +20,16 @@
 \usepackage{wrapfig,lipsum,booktabs}
 % \usepackage{authblk}
 \usepackage{blindtext}
-\usepackage{algorithm}
-\usepackage{algorithmic}
+% algorithm + algorithmic are DISABLED: they conflict with algpseudocode
+% (used by NeurIPS, ICML, ICLR). Load only ONE of the two in main.tex:
+%   \usepackage{algorithm} + \usepackage{algpseudocode}   <- modern (recommended)
+%   \usepackage{algorithm} + \usepackage{algorithmic}     <- legacy (ALL-CAPS commands)
+% \usepackage{algorithm}
+% \usepackage{algorithmic}
 \usepackage{titletoc}
 \usepackage{todonotes}
 % \usepackage{authblk}
-\usepackage{titletoc}
+% (titletoc loaded once above; duplicate removed)
 \usepackage{setspace}
 \usepackage{dsfont}
 \usepackage{adjustbox}
@@ -121,10 +125,13 @@
 \newcommand{\hcite}[1]{$\text{ }$\cite{#1}}
 \usepackage{slashed}
 
-\def\({\left(}
-\def\){\right)}
-\def\[{\left[}
-\def\]{\right]}
+% ⚠️  DANGER: These four lines redefine LaTeX's own math-mode delimiters
+% (\( \) = inline math; \[ \] = display math) and BREAK all math environments.
+% They are permanently disabled. Use \left( ... \right) explicitly if needed.
+% \def\({\left(}
+% \def\){\right)}
+% \def\[{\left[}
+% \def\]{\right]}
 %
 
 \usepackage{dashbox}
